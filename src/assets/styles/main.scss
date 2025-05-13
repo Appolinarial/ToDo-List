@@ -1,0 +1,15 @@
+@font-face {
+    font-family: 'Vela Sans';
+    src: url('./assets/fonts/vela-sans.woff2') format('woff2'),
+         url('./assets/fonts/vela-sans.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+body {
+    font-family: 'Vela Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 100;
+}
+h2 {
+    font-family: 'Montserrat', sans-serif;
+}
