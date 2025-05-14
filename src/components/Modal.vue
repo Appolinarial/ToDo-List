@@ -6,17 +6,17 @@ const emit = defineEmits(['create-task', 'close'])
 const newTask = ref('')
 
 const handleCreate = () => {
-if (newTask.value.trim()) {
-    const task = {
-    id: Date.now(),
-    title: newTask.value.trim(),
-    status: false,
-    createdAt: new Date().toISOString()
+    if (newTask.value.trim()) {
+        const task = {
+            id: Date.now(),
+            title: newTask.value.trim(),
+            status: false,
+            createdAt: new Date().toISOString()
+        }
+        emit('create-task', task)
+        newTask.value = ''
+        emit('close')
     }
-    emit('create-task', task)
-    newTask.value = '' // очистка поля
-    emit('close') // закрыть модальное окно
-}
 }
 </script>
 <template>

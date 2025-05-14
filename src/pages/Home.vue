@@ -9,17 +9,6 @@ const search = ref('')
 const sort = ref('date')
 const showModal = ref(false)
 
-onMounted(() => {
-  const saved = localStorage.getItem('tasks')
-  if (saved) {
-    tasks.value = JSON.parse(saved)
-  }
-})
-
-watch(tasks, (newVal) => {
-  localStorage.setItem('tasks', JSON.stringify(newVal))
-}, { deep: true })
-
 const filteredTasks = computed(() => {
   let result = [...tasks.value]
   const term = search.value.toLowerCase().trim()
@@ -29,7 +18,6 @@ const filteredTasks = computed(() => {
       const title = task.title.toLowerCase()
       const status = task.status ? 'выполнено' : 'в работе'
 
-      // Преобразуем дату в формат 13.05.2025
       const formattedDate = new Date(task.createdAt).toLocaleDateString('ru-RU', {
         day: '2-digit',
         month: '2-digit',
@@ -44,7 +32,6 @@ const filteredTasks = computed(() => {
     })
   }
 
-  // Сортировка
   if (sort.value === 'date') {
     result.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
   } else if (sort.value === 'status') {
@@ -64,6 +51,16 @@ const toggleStatus = (id) => {
   if (task) task.status = !task.status
 }
 
+watch(tasks, (newVal) => {
+  localStorage.setItem('tasks', JSON.stringify(newVal))
+}, { deep: true })
+
+onMounted(() => {
+  const saved = localStorage.getItem('tasks')
+  if (saved) {
+    tasks.value = JSON.parse(saved)
+  }
+})
 </script>
 
 <template>

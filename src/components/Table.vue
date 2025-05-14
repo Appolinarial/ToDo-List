@@ -2,24 +2,24 @@
 import { ref } from 'vue'
 
 const hoveredRow = ref(null)
-
-defineProps({
-tasks: {
-    type: Array,
-    required: true
-}
-})
-
 const emit = defineEmits(['toggle-status'])
 
-function formatDate(dateStr) {
-const date = new Date(dateStr)
-if (isNaN(date)) return 'Некорректная дата'
-return date.toLocaleDateString('ru-RU', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric'
+defineProps({
+    tasks: {
+        type: Array,
+        required: true
+    }
 })
+
+function formatDate(dateStr) {
+    const date = new Date(dateStr)
+    if (isNaN(date)) return 'Некорректная дата'
+        return date.toLocaleDateString('ru-RU', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        }
+    )
 }
 </script>
 <template>
