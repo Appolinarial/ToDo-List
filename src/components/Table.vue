@@ -1,4 +1,8 @@
 <script setup>
+import { ref } from 'vue'
+
+const hoveredRow = ref(null)
+
 defineProps({
 tasks: {
     type: Array,
@@ -19,66 +23,109 @@ return date.toLocaleDateString('ru-RU', {
 }
 </script>
 <template>
-<table class="task-table">
-    <thead>
-    <tr class="task-table__header">
-        <th class="task-table__cell task-table__cell--icon"></th>
-        <th class="task-table__cell">Описание</th>
-        <th class="task-table__cell">Статус</th>
-        <th class="task-table__cell">Дата</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr v-for="task in tasks" :key="task.id" class="task-table__row">
-        <td class="task-table__cell task-table__cell--icon">
+  <div class="task-table">
+    <div class="task-table__header task-table__row">
+      <div class="task-table__cell task-table__cell--icon"></div>
+      <div class="task-table__cell task-table__cell--header">Описание</div>
+      <div class="task-table__cell task-table__cell--header task-table__cell--status ">Статус</div>
+      <div class="task-table__cell task-table__cell--header task-table__cell--date">Дата</div>
+    </div>
+
+    <div
+      class="task-table__row"
+      v-for="task in tasks"
+      :key="task.id"
+      @mouseenter="hoveredRow = task.id"
+      @mouseleave="hoveredRow = null"
+      :class="{ 'is-hovered': hoveredRow === task.id }"
+    >
+      <div class="task-table__cell task-table__cell--icon">
         <button class="task-table__status-btn" @click="$emit('toggle-status', task.id)">
-            <svg v-if="!task.status" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6c757d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10" />
-            </svg>
-            <svg v-else width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#134EC1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10" />
-            <polyline points="9 12 12 15 16 10" />
-            </svg>
+          <img v-if="!task.status" src="@/assets/icons/circle.svg" />
+          <img v-else class="task-table__status-btn-done" src="@/assets/icons/done-circle.svg" />
         </button>
-        </td>
-        <td class="task-table__cell">{{ task.title }}</td>
-        <td class="task-table__cell">{{ task.status ? 'Выполнено' : 'Не выполнено' }}</td>
-        <td class="task-table__cell">{{ formatDate(task.createdAt) }}</td>
-    </tr>
-    </tbody>
-</table>
+      </div>
+      <div class="task-table__cell">{{ task.title }}</div>
+      <div
+        class="task-table__cell task-table__cell--status"
+        :class="task.status ? 'status-done' : 'status-in-progress'"
+      >
+        {{ task.status ? 'Выполнено' : 'В работе' }}
+      </div>
+      <div class="task-table__cell task-table__cell--date">{{ formatDate(task.createdAt) }}</div>
+    </div>
+  </div>
 </template>
 <style lang="scss" scoped>
 .task-table {
-    width: 100%;
-    border-collapse: collapse;
+  display: grid;
+  width: 100%;
+  font-size: 14px;
+  margin-bottom: 16px;
 
-    &__header {
-        text-align: left;
-        border-bottom: 1px solid #ccc;
+  &__row {
+    display: grid;
+    grid-template-columns: 80px 1fr 151px 129px;
+    height: 58px;
+    align-items: center;
+    background-color: white;
+    transition: box-shadow 0.2s ease, background-color 0.2s ease;
+    position: relative;
+    z-index: 0;
+    margin-bottom: 0;
+    border-bottom: 1px solid #eee;
+
+    &.is-hovered {
+      background-color: #f6f9ff;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      z-index: 1;
     }
 
-    &__row {
-        border-bottom: 1px solid #eee;
+    &:not(.is-hovered) {
+      box-shadow: none;
+    }
+  }
+
+  &__header {
+    font-weight: 100;
+  }
+
+  &__cell {
+    padding: 16px 20px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+
+    &--header {
+        border-left: 1px solid #eee;
+        padding: 10px 0px 6px 20px;
+        margin-bottom: 16px;
     }
 
-    &__cell {
-        padding: 12px;
-
-        &--icon {
-        width: 40px;
-        }
+    &--icon {
+      display: flex;
+      justify-content: center;
+      padding-left: 0;
     }
+  }
 
-    &__status-btn {
-        background: none;
-        border: none;
-        cursor: pointer;
-        padding: 0;
+  &__status-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    overflow: visible;
 
-        svg {
-        display: block;
-        }
+    &-done {
+      filter: drop-shadow(0 4px 3px rgba(19, 78, 193, 0.22));
     }
+  }
+}
+
+.status-done {
+  color: #134ec1;
+}
+.status-in-progress {
+  color: #f89b11;
 }
 </style>

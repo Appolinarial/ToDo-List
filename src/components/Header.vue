@@ -1,55 +1,68 @@
 <script setup>
-import { ref, computed } from 'vue'
+    import { ref, computed, onBeforeUnmount, onMounted } from 'vue'
 
-const props = defineProps({
-search: String,
-sort: String
-})
+    const props = defineProps({
+    search: String,
+    sort: String
+    })
 
-const emit = defineEmits(['update:search', 'update:sort', 'open-modal'])
+    const emit = defineEmits(['update:search', 'update:sort', 'open-modal'])
 
-const dropdownOpen = ref(false)
+    const dropdownOpen = ref(false)
+    const dropdownRef = ref(null)
 
-const toggleDropdown = () => {
-dropdownOpen.value = !dropdownOpen.value
-}
+    const toggleDropdown = () => {
+    dropdownOpen.value = !dropdownOpen.value
+    }
 
-const selectSort = (value) => {
-emit('update:sort', value)
-dropdownOpen.value = false
-}
+    const selectSort = (value) => {
+    emit('update:sort', value)
+    dropdownOpen.value = false
+    }
 
-const sortText = computed(() => {
-return props.sort === 'status' ? 'Статус' : 'Дата'
-})
+    const sortText = computed(() => {
+    return props.sort === 'status' ? 'Статус' : 'Дата'
+    })
+
+    const handleClickOutside = (event) => {
+    if (dropdownRef.value && !dropdownRef.value.contains(event.target)) {
+        dropdownOpen.value = false
+    }
+    }
+
+    onMounted(() => {
+    document.addEventListener('click', handleClickOutside)
+    })
+
+    onBeforeUnmount(() => {
+    document.removeEventListener('click', handleClickOutside)
+    })
 </script>
 <template>
     <div class="todo-header">
         <div class="todo-header__top">
         <h2 class="todo-header__title">To do list</h2>
         <button class="todo-header__add-btn" @click="$emit('open-modal')" aria-label="Добавить задачу">
-            <svg xmlns="http://www.w3.org/2000/svg" class="todo-header__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#314B99" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="12" y1="3" x2="12" y2="21"/>
-            <line x1="3" y1="12" x2="21" y2="12"/>
-            </svg>
+            <img src="@/assets/icons/plus-button.svg" class="todo-header__icon" alt="plus"/>
         </button>
         </div>
 
         <div class="todo-header__controls">
-        <input
-            :value="props.search"
-            @input="$emit('update:search', $event.target.value)"
-            class="todo-header__search"
-            placeholder="Поиск Имени, статуса или даты"
-        />
+            <div class="todo-header__controls--input">
+                <img src="@/assets/icons/magnifier.svg">
+                <input
+                    :value="props.search"
+                    @input="$emit('update:search', $event.target.value)"
+                    class="todo-header__search"
+                    placeholder="Поиск Имени, статуса или даты"
+                />
+            </div>
 
-        <div class="todo-header__sort" @click="toggleDropdown">
+        <div class="todo-header__sort" @click="toggleDropdown" ref="dropdownRef">
             <span class="todo-header__sort-label">Сортировать по: </span>
             <span class="todo-header__sort-selected">
             {{ sortText }}
-            <svg xmlns="http://www.w3.org/2000/svg" class="todo-header__sort-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="6 9 12 15 18 9" />
-            </svg>
+            <img class="todo-header__sort-button" src="@/assets/icons/dropdown-button.svg">
             </span>
 
             <ul v-if="dropdownOpen" class="todo-header__dropdown">
@@ -67,10 +80,12 @@ return props.sort === 'status' ? 'Статус' : 'Дата'
         display: flex;
         justify-content: space-between;
         align-items: center;
+        padding-left: 40px;
     }
 
     &__title {
         font-weight: bold;
+        margin-bottom: 34px;
     }
 
     &__add-btn {
@@ -78,6 +93,7 @@ return props.sort === 'status' ? 'Статус' : 'Дата'
         border: none;
         border-radius: 50%;
         padding: 8px;
+        margin-bottom: 30px;
         cursor: pointer;
 
         &:hover {
@@ -87,6 +103,8 @@ return props.sort === 'status' ? 'Статус' : 'Дата'
 
     &__icon {
         display: block;
+        width: 20px;
+        height: 20px;
     }
 
     &__controls {
@@ -94,10 +112,24 @@ return props.sort === 'status' ? 'Статус' : 'Дата'
         justify-content: space-between;
         align-items: center;
         border: none;
+        margin-bottom: 40px;
+        padding-left: 40px;
+
+        &--input {
+            display: flex;
+            justify-content: center;
+            color: #000;
+        }
+
     }
 
     &__search {
         border: none;
+        text-align: center;
+        font-size: 14px;
+        color: #000;
+        width: 238px;
+        height: 20px
     }
 
     &__sort {
@@ -109,16 +141,23 @@ return props.sort === 'status' ? 'Статус' : 'Дата'
         cursor: pointer;
 
         &-label {
-        margin-right: 4px;
+        margin-right: 15px;
+        text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
         }
 
         &-selected {
         display: flex;
         align-items: center;
+        text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
         }
 
         &-icon {
         margin-top: 2px;
+        }
+
+        &-button {
+        margin-left: 6px;
+        filter: drop-shadow(3px 3px 6px rgb(0, 0, 0.3));
         }
     }
 
@@ -130,7 +169,7 @@ return props.sort === 'status' ? 'Статус' : 'Дата'
         background-color: #fff;
         border: 1px solid #ddd;
         border-radius: 4px;
-        width: 120px;
+        width: 170px;
         z-index: 10;
         list-style: none;
         padding: 0;
@@ -144,7 +183,7 @@ return props.sort === 'status' ? 'Статус' : 'Дата'
         }
 
         &.todo-header__dropdown-item--active {
-            font-weight: bold;
+            font-weight: 600;
         }
         }
     }
