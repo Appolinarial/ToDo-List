@@ -22,15 +22,26 @@ watch(tasks, (newVal) => {
 
 const filteredTasks = computed(() => {
   let result = [...tasks.value]
+  const term = search.value.toLowerCase().trim()
 
-  // Поиск по всем полям задачи
-  if (search.value) {
-    const term = search.value.toLowerCase()
-    result = result.filter(task =>
-      task.title.toLowerCase().includes(term) ||
-      task.createdAt.toLowerCase().includes(term) ||
-      (task.status ? 'выполнено' : 'не выполнено').includes(term)
-    )
+  if (term) {
+    result = result.filter(task => {
+      const title = task.title.toLowerCase()
+      const status = task.status ? 'выполнено' : 'в работе'
+
+      // Преобразуем дату в формат 13.05.2025
+      const formattedDate = new Date(task.createdAt).toLocaleDateString('ru-RU', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      }).toLowerCase()
+
+      return (
+        title.includes(term) ||
+        status.includes(term) ||
+        formattedDate.includes(term)
+      )
+    })
   }
 
   // Сортировка
@@ -42,6 +53,7 @@ const filteredTasks = computed(() => {
 
   return result
 })
+
 
 const addTask = (task) => {
   tasks.value.push(task)
